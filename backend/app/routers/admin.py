@@ -38,7 +38,7 @@ from app.schemas import (
 )
 from app.middleware.auth import get_current_admin
 from app.utils.auth import verify_password, get_password_hash
-from app.services.recognition_service import recognition_service
+# from app.services.recognition_service import recognition_service
 router = APIRouter()
 
 # Helper data
