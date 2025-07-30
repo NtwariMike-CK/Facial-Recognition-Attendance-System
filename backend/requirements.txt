@@ -1,4 +1,6 @@
 # Core FastAPI dependencies
+setuptools==80.2.0
+wheel==0.43.0
 fastapi==0.116.0
 uvicorn==0.35.0
 SQLAlchemy==2.0.41
@@ -31,6 +33,5 @@ requests==2.32.4
 python-dateutil==2.9.0.post0
 pytz==2025.2
 typing_extensions==4.14.1
-setuptools==80.2.0
 six==1.17.0
 pillow==10.0.0
