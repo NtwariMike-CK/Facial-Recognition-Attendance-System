@@ -875,83 +875,83 @@ async def get_camera_settings(
     return settings
 
 
-@router.post("/camera-settings/start-recognition")
-async def start_recognition(
-    show_preview: bool = True,  # Add optional parameter for preview
-    current_admin: Admin = Depends(get_current_admin),
-    db: Session = Depends(get_db)
-):
-    """Start the facial recognition system with optional camera preview."""
+# @router.post("/camera-settings/start-recognition")
+# async def start_recognition(
+#     show_preview: bool = True,  # Add optional parameter for preview
+#     current_admin: Admin = Depends(get_current_admin),
+#     db: Session = Depends(get_db)
+# ):
+#     """Start the facial recognition system with optional camera preview."""
     
-    settings = db.query(CameraSettings).filter(
-        CameraSettings.company == current_admin.company
-    ).first()
+#     settings = db.query(CameraSettings).filter(
+#         CameraSettings.company == current_admin.company
+#     ).first()
     
-    if not settings:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Camera settings not found. Please configure camera first."
-        )
+#     if not settings:
+#         raise HTTPException(
+#             status_code=status.HTTP_404_NOT_FOUND,
+#             detail="Camera settings not found. Please configure camera first."
+#         )
 
-    # Check if employees with images exist
-    employees_with_images = db.query(Employee).filter(
-        Employee.company == current_admin.company,
-        Employee.image_path.isnot(None)
-    ).count()
+#     # Check if employees with images exist
+#     employees_with_images = db.query(Employee).filter(
+#         Employee.company == current_admin.company,
+#         Employee.image_path.isnot(None)
+#     ).count()
     
-    if employees_with_images == 0:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="No employees with images found. Please upload employee images first."
-        )
+#     if employees_with_images == 0:
+#         raise HTTPException(
+#             status_code=status.HTTP_400_BAD_REQUEST,
+#             detail="No employees with images found. Please upload employee images first."
+#         )
     
-    # Start the recognition service with preview option
-    result = recognition_service.start_recognition(current_admin.company, db, show_preview)
+#     # Start the recognition service with preview option
+#     result = recognition_service.start_recognition(current_admin.company, db, show_preview)
     
-    if "error" in result:
-        raise HTTPException(status_code=500, detail=result["error"])
+#     if "error" in result:
+#         raise HTTPException(status_code=500, detail=result["error"])
     
-    # Update DB state
-    settings.recognition_active = True
-    db.commit()
+#     # Update DB state
+#     settings.recognition_active = True
+#     db.commit()
     
-    # Add preview info to response
-    result["preview_enabled"] = show_preview
-    if show_preview:
-        result["preview_note"] = "Camera preview window opened. Press 'q' in the preview window to stop recognition."
+#     # Add preview info to response
+#     result["preview_enabled"] = show_preview
+#     if show_preview:
+#         result["preview_note"] = "Camera preview window opened. Press 'q' in the preview window to stop recognition."
     
-    return result
+#     return result
 
-@router.post("/camera-settings/stop-recognition")
-async def stop_recognition(
-    current_admin: Admin = Depends(get_current_admin),
-    db: Session = Depends(get_db)
-):
-    """Stop the facial recognition system."""
+# @router.post("/camera-settings/stop-recognition")
+# async def stop_recognition(
+#     current_admin: Admin = Depends(get_current_admin),
+#     db: Session = Depends(get_db)
+# ):
+#     """Stop the facial recognition system."""
     
-    settings = db.query(CameraSettings).filter(
-        CameraSettings.company == current_admin.company
-    ).first()
+#     settings = db.query(CameraSettings).filter(
+#         CameraSettings.company == current_admin.company
+#     ).first()
     
-    if not settings:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Camera settings not found"
-        )
+#     if not settings:
+#         raise HTTPException(
+#             status_code=status.HTTP_404_NOT_FOUND,
+#             detail="Camera settings not found"
+#         )
     
-    # Stop the recognition service
-    result = recognition_service.stop_recognition()
+#     # Stop the recognition service
+#     result = recognition_service.stop_recognition()
     
-    # Always update DB state, even if stopping failed
-    settings.recognition_active = False
-    db.commit()
+#     # Always update DB state, even if stopping failed
+#     settings.recognition_active = False
+#     db.commit()
     
-    if "error" in result:
-        # Log the error but don't raise exception since DB state is updated
-        print(f"Warning: {result['error']}")
-        return {"message": "Recognition system state updated to inactive", "status": "inactive"}
+#     if "error" in result:
+#         # Log the error but don't raise exception since DB state is updated
+#         print(f"Warning: {result['error']}")
+#         return {"message": "Recognition system state updated to inactive", "status": "inactive"}
     
-    return result
+#     return result
 
 @router.get("/camera-settings/status")
 async def get_recognition_status(
@@ -1320,160 +1320,160 @@ async def video_stream():
         }
     )
 
-@router.get("/admin/camera-preview-frame")
-async def get_preview_frame():
-    """Get single frame for preview with enhanced error handling"""
+# @router.get("/admin/camera-preview-frame")
+# async def get_preview_frame():
+#     """Get single frame for preview with enhanced error handling"""
     
-    if not recognition_service.is_running:
-        raise HTTPException(status_code=400, detail="Recognition system not running")
+#     if not recognition_service.is_running:
+#         raise HTTPException(status_code=400, detail="Recognition system not running")
     
-    if not recognition_service.frame_ready:
-        raise HTTPException(status_code=503, detail="Camera initializing, please wait")
+#     if not recognition_service.frame_ready:
+#         raise HTTPException(status_code=503, detail="Camera initializing, please wait")
     
-    try:
-        # Get frame data from service
-        frame_data = recognition_service.get_latest_frame()
-        if frame_data is None or 'frame' not in frame_data:
-            raise HTTPException(status_code=404, detail="No frame available")
+#     try:
+#         # Get frame data from service
+#         frame_data = recognition_service.get_latest_frame()
+#         if frame_data is None or 'frame' not in frame_data:
+#             raise HTTPException(status_code=404, detail="No frame available")
         
-        frame = frame_data['frame']  # Extract the actual frame
+#         frame = frame_data['frame']  # Extract the actual frame
         
-        # Optional: Resize frame for preview
-        height, width = frame.shape[:2]
-        if width > 800:  # Smaller size for single frame preview
-            scale = 800 / width
-            new_width = 800
-            new_height = int(height * scale)
-            frame = cv2.resize(frame, (new_width, new_height))
+#         # Optional: Resize frame for preview
+#         height, width = frame.shape[:2]
+#         if width > 800:  # Smaller size for single frame preview
+#             scale = 800 / width
+#             new_width = 800
+#             new_height = int(height * scale)
+#             frame = cv2.resize(frame, (new_width, new_height))
         
-        # Encode frame with optimized settings
-        encode_params = [cv2.IMWRITE_JPEG_QUALITY, 90]
-        ret, buffer = cv2.imencode('.jpg', frame, encode_params)
+#         # Encode frame with optimized settings
+#         encode_params = [cv2.IMWRITE_JPEG_QUALITY, 90]
+#         ret, buffer = cv2.imencode('.jpg', frame, encode_params)
         
-        if not ret:
-            raise HTTPException(status_code=500, detail="Frame encoding failed")
+#         if not ret:
+#             raise HTTPException(status_code=500, detail="Frame encoding failed")
         
-        # Convert to base64
-        frame_base64 = base64.b64encode(buffer).decode('utf-8')
+#         # Convert to base64
+#         frame_base64 = base64.b64encode(buffer).decode('utf-8')
         
-        return {
-            "frame": f"data:image/jpeg;base64,{frame_base64}",
-            "timestamp": frame_data.get('timestamp', recognition_service.get_current_time()).isoformat(),
-            "resolution": f"{frame.shape[1]}x{frame.shape[0]}",
-            "employees_loaded": len(recognition_service.known_face_names),
-            "frame_number": frame_data.get('frame_number', 0),
-            "fps": frame_data.get('fps', 0)
-        }
+#         return {
+#             "frame": f"data:image/jpeg;base64,{frame_base64}",
+#             "timestamp": frame_data.get('timestamp', recognition_service.get_current_time()).isoformat(),
+#             "resolution": f"{frame.shape[1]}x{frame.shape[0]}",
+#             "employees_loaded": len(recognition_service.known_face_names),
+#             "frame_number": frame_data.get('frame_number', 0),
+#             "fps": frame_data.get('fps', 0)
+#         }
         
-    except HTTPException:
-        raise  # Re-raise HTTP exceptions
-    except Exception as e:
-        logger.error(f"Error getting preview frame: {e}")
-        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
+#     except HTTPException:
+#         raise  # Re-raise HTTP exceptions
+#     except Exception as e:
+#         logger.error(f"Error getting preview frame: {e}")
+#         raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
 
-@router.get("/admin/camera-status")
-async def get_camera_status():
-    """Get detailed camera and recognition status"""
-    try:
-        status = recognition_service.get_status()
+# @router.get("/admin/camera-status")
+# async def get_camera_status():
+#     """Get detailed camera and recognition status"""
+#     try:
+#         status = recognition_service.get_status()
         
-        # Add additional status information
-        additional_info = {
-            "blink_counts": dict(recognition_service.person_blink_count),
-            "last_detections": {
-                name: time.isoformat() if time else None 
-                for name, time in recognition_service.last_detection_time.items()
-            },
-            "active_employees": len(recognition_service.attendance_employee_ids),
-            "blink_threshold": recognition_service.BLINK_THRESHOLD,
-            "checkout_delay_minutes": recognition_service.CHECKOUT_DELAY_MINUTES
-        }
+#         # Add additional status information
+#         additional_info = {
+#             "blink_counts": dict(recognition_service.person_blink_count),
+#             "last_detections": {
+#                 name: time.isoformat() if time else None 
+#                 for name, time in recognition_service.last_detection_time.items()
+#             },
+#             "active_employees": len(recognition_service.attendance_employee_ids),
+#             "blink_threshold": recognition_service.BLINK_THRESHOLD,
+#             "checkout_delay_minutes": recognition_service.CHECKOUT_DELAY_MINUTES
+#         }
         
-        return {**status, **additional_info}
+#         return {**status, **additional_info}
         
-    except Exception as e:
-        logger.error(f"Error getting camera status: {e}")
-        raise HTTPException(status_code=500, detail=f"Failed to get status: {str(e)}")
+#     except Exception as e:
+#         logger.error(f"Error getting camera status: {e}")
+#         raise HTTPException(status_code=500, detail=f"Failed to get status: {str(e)}")
 
 
-@router.post("/admin/camera-settings")
-async def update_camera_settings(settings: dict):
-    """Update camera settings dynamically"""
-    try:
-        # Update blink threshold if provided
-        if "blink_threshold" in settings:
-            threshold = int(settings["blink_threshold"])
-            if 1 <= threshold <= 20:
-                recognition_service.BLINK_THRESHOLD = threshold
-            else:
-                raise HTTPException(status_code=400, detail="Blink threshold must be between 1 and 20")
+# @router.post("/admin/camera-settings")
+# async def update_camera_settings(settings: dict):
+#     """Update camera settings dynamically"""
+#     try:
+#         # Update blink threshold if provided
+#         if "blink_threshold" in settings:
+#             threshold = int(settings["blink_threshold"])
+#             if 1 <= threshold <= 20:
+#                 recognition_service.BLINK_THRESHOLD = threshold
+#             else:
+#                 raise HTTPException(status_code=400, detail="Blink threshold must be between 1 and 20")
         
-        # Update checkout delay if provided
-        if "checkout_delay_minutes" in settings:
-            delay = int(settings["checkout_delay_minutes"])
-            if 1 <= delay <= 60:
-                recognition_service.CHECKOUT_DELAY_MINUTES = delay
-            else:
-                raise HTTPException(status_code=400, detail="Checkout delay must be between 1 and 60 minutes")
+#         # Update checkout delay if provided
+#         if "checkout_delay_minutes" in settings:
+#             delay = int(settings["checkout_delay_minutes"])
+#             if 1 <= delay <= 60:
+#                 recognition_service.CHECKOUT_DELAY_MINUTES = delay
+#             else:
+#                 raise HTTPException(status_code=400, detail="Checkout delay must be between 1 and 60 minutes")
         
-        return {
-            "message": "Settings updated successfully",
-            "current_settings": {
-                "blink_threshold": recognition_service.BLINK_THRESHOLD,
-                "checkout_delay_minutes": recognition_service.CHECKOUT_DELAY_MINUTES
-            }
-        }
+#         return {
+#             "message": "Settings updated successfully",
+#             "current_settings": {
+#                 "blink_threshold": recognition_service.BLINK_THRESHOLD,
+#                 "checkout_delay_minutes": recognition_service.CHECKOUT_DELAY_MINUTES
+#             }
+#         }
         
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=f"Invalid setting value: {str(e)}")
-    except Exception as e:
-        logger.error(f"Error updating camera settings: {e}")
-        raise HTTPException(status_code=500, detail=f"Failed to update settings: {str(e)}")
+#     except ValueError as e:
+#         raise HTTPException(status_code=400, detail=f"Invalid setting value: {str(e)}")
+#     except Exception as e:
+#         logger.error(f"Error updating camera settings: {e}")
+#         raise HTTPException(status_code=500, detail=f"Failed to update settings: {str(e)}")
 
-# Optional: WebSocket endpoint for real-time updates
-@router.websocket("/admin/camera-websocket")
-async def camera_websocket(websocket: WebSocket):
-    """WebSocket endpoint for real-time camera feed and status updates"""
-    await websocket.accept()
+# # Optional: WebSocket endpoint for real-time updates
+# @router.websocket("/admin/camera-websocket")
+# async def camera_websocket(websocket: WebSocket):
+#     """WebSocket endpoint for real-time camera feed and status updates"""
+#     await websocket.accept()
     
-    try:
-        # Add client to streaming set
-        recognition_service.streaming_clients.add(websocket)
+#     try:
+#         # Add client to streaming set
+#         recognition_service.streaming_clients.add(websocket)
         
-        while recognition_service.is_running:
-            try:
-                # Send frame data
-                frame_data = recognition_service.get_latest_frame()
-                if frame_data is not None and 'frame' in frame_data:
-                    frame = frame_data['frame']  # Extract the actual frame
+#         while recognition_service.is_running:
+#             try:
+#                 # Send frame data
+#                 frame_data = recognition_service.get_latest_frame()
+#                 if frame_data is not None and 'frame' in frame_data:
+#                     frame = frame_data['frame']  # Extract the actual frame
                     
-                    # Encode frame
-                    ret, buffer = cv2.imencode('.jpg', frame, [cv2.IMWRITE_JPEG_QUALITY, 80])
-                    if ret:
-                        frame_base64 = base64.b64encode(buffer).decode('utf-8')
+#                     # Encode frame
+#                     ret, buffer = cv2.imencode('.jpg', frame, [cv2.IMWRITE_JPEG_QUALITY, 80])
+#                     if ret:
+#                         frame_base64 = base64.b64encode(buffer).decode('utf-8')
                         
-                        # Send frame with status
-                        await websocket.send_json({
-                            "type": "frame",
-                            "data": f"data:image/jpeg;base64,{frame_base64}",
-                            "timestamp": frame_data.get('timestamp', recognition_service.get_current_time()).isoformat(),
-                            "blink_counts": dict(recognition_service.person_blink_count),
-                            "frame_number": frame_data.get('frame_number', 0),
-                            "fps": frame_data.get('fps', 0)
-                        })
+#                         # Send frame with status
+#                         await websocket.send_json({
+#                             "type": "frame",
+#                             "data": f"data:image/jpeg;base64,{frame_base64}",
+#                             "timestamp": frame_data.get('timestamp', recognition_service.get_current_time()).isoformat(),
+#                             "blink_counts": dict(recognition_service.person_blink_count),
+#                             "frame_number": frame_data.get('frame_number', 0),
+#                             "fps": frame_data.get('fps', 0)
+#                         })
                 
-                await asyncio.sleep(0.1)  # 10 FPS for WebSocket
+#                 await asyncio.sleep(0.1)  # 10 FPS for WebSocket
                 
-            except Exception as e:
-                logger.error(f"WebSocket frame error: {e}")
-                break
+#             except Exception as e:
+#                 logger.error(f"WebSocket frame error: {e}")
+#                 break
                 
-    except Exception as e:
-        logger.error(f"WebSocket error: {e}")
-    finally:
-        # Remove client from streaming set
-        recognition_service.streaming_clients.discard(websocket)
-        try:
-            await websocket.close()
-        except:
-            pass
+#     except Exception as e:
+#         logger.error(f"WebSocket error: {e}")
+#     finally:
+#         # Remove client from streaming set
+#         recognition_service.streaming_clients.discard(websocket)
+#         try:
+#             await websocket.close()
+#         except:
+#             pass
