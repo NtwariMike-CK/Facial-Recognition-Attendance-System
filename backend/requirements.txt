@@ -1,6 +1,6 @@
 # Core FastAPI dependencies
-setuptools==80.2.0
-wheel==0.43.0
+setuptools>=60
+wheel>=0.36
 fastapi==0.116.0
 uvicorn==0.35.0
 SQLAlchemy==2.0.41
