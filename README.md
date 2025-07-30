@@ -16,19 +16,51 @@ A comprehensive attendance tracking system that uses facial recognition technolo
 
 ```
 fras/
-├── backend/                 # FastAPI backend
+├── backend/                           # FastAPI backend
+│   ├── app/                          # Main application package
+│   │   ├── __pycache__/
+│   │   ├── middleware/               # Custom middleware
+│   │   ├── routers/                  # API route handlers
+│   │   ├── services/                 # Recognition Logic
+│   │   │   ├── __pycache__/
+│   │   │   ├── __init__.py
+|   |   │   ├── fras_config.json                              # Application configuration
+│   │   │   ├── dlib_face_recognition_resnet_model_v1.dat     # Face recognition model
+│   │   │   └── recognition_service.py                        # Facial recognition logic
+│   │   ├── utils/                    # Utility functions
+│   │   │  
+│   │   └── __init__.py
+│   │   ├── main.py                    # FastAPI application entry point
+|   |   ├── database.py                # Database connection
+│   │   ├── models.py                  # SQLAlchemy database models
+│   │   ├── schemas.py                 # Pydantic schemas
+│   ├── requirements.txt               # Python dependencies
+│   ├── .env                           # Local environment variables (create this)
+│   ├── .env.example                   # Example environment file
+│   ├── dlib_face_recognition_resnet_model_v1.dat             # Face recognition model
+│   ├── shape_predictor_68_face_landmarks.dat                 # Facial landmarks model
+|   |
+├── Frontend/                        # Next.js frontend
+│   ├── .next/
 │   ├── app/
-│   ├── requirements.txt
-│   ├── .env                # Local environment variables (create this)
-│   ├── .env.example        # Example environment file
-│   └── main.py
-├── frontend/               # Next.js frontend
 │   ├── components/
-│   ├── pages/
-│   ├── .env.local         # Local environment variables (create this)
-│   ├── .env.example       # Example environment file
-│   └── package.json
-├── .gitignore             # Should include .env files
+│   ├── hooks/
+│   ├── lib/
+│   ├── node_modules/
+│   ├── public/
+│   ├── styles/
+│   ├── components.json
+│   ├── next-env.d.ts
+│   ├── next.config.mjs
+│   ├── package-lock.json
+│   ├── package.json
+│   ├── pnpm-lock.yaml
+│   ├── postcss.config.mjs
+│   ├── tailwind.config.ts
+│   ├── tsconfig.json
+│   ├── .env.local                   # Local environment variables (create this)
+│   ├── .env.example                 # Example environment file
+│   └── .gitignore
 └── README.md
 ```
 
@@ -118,11 +150,21 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-#### Environment Configuration
-Create a `.env` file in the backend directory with your local database settings:
 
-```env
-# Local Database Configuration
+Note: The requirements.txt includes all necessary dependencies including:
+
+FastAPI and Uvicorn for the web framework
+face-recognition and dlib for facial recognition
+psycopg2-binary for PostgreSQL connection
+SQLAlchemy and Alembic for database ORM and migrations
+OpenCV for computer vision
+And other essential packages
+
+Important: The face recognition models (dlib_face_recognition_resnet_model_v1.dat and shape_predictor_68_face_landmarks.dat) should already be in your backend directory. If they're missing, the face-recognition library will download them automatically on first use.
+Environment Configuration
+Create a .env file in the backend directory with your local database settings:
+```
+env# Local Database Configuration
 # Use your local PostgreSQL database (NOT any production/deployed database)
 DATABASE_URL=postgresql://fras_local_user:local_dev_password@localhost:5432/fras_local_db
 
