@@ -1,29 +1,38 @@
-# Use official Python image with build tools
-FROM python:3.11-slim
+# Use a lightweight base image with Python 3.10
+FROM python:3.10-slim
 
-# Install system dependencies for dlib and face_recognition
+# Install dependencies for dlib and face recognition
 RUN apt-get update && apt-get install -y \
     build-essential \
     cmake \
-    libopenblas-dev \
-    liblapack-dev \
-    libx11-dev \
+    git \
+    curl \
     libgtk-3-dev \
     libboost-all-dev \
     libssl-dev \
+    libffi-dev \
+    libpq-dev \
+    libatlas-base-dev \
+    libgl1-mesa-glx \
+    libglib2.0-0 \
+    && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-# Set working directory
+# Create app directory
 WORKDIR /app
 
-# Copy all files
+# Copy requirements
+COPY requirements.txt .
+
+# Install pip dependencies
+RUN pip install --upgrade pip
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy your entire project
 COPY . .
 
-# Install Python dependencies
-RUN pip install --upgrade pip && pip install -r requirements.txt
-
-# Expose FastAPI port
+# Expose the port FastAPI will run on
 EXPOSE 8000
 
-# Start FastAPI app with uvicorn
+# Command to run your app (change if your entrypoint is different)
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
