@@ -13,8 +13,7 @@ import os
 import csv
 from io import StringIO
 
-import cv2
-import asyncio
+# import cv2
 from threading import Lock
 
 import asyncio
